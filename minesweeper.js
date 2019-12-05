@@ -29,6 +29,7 @@ function init() {
   canvasSize = 640;
   createBoard(boardSize);
   guiY = tileSize * boardSize + 1;
+  ai = new AI(this);
 
   setInterval(update, 1000 / 60);
 }
@@ -38,8 +39,12 @@ function update() {
 
   if (!won && !lost) {
     time++;
-    if(time % (60 * 0.2) == 0 && aiSolve) {
-      ai.nextMove();
+    if(time % (60 * 0.1) == 0) {
+      if(aiSolve)
+        ai.nextMove();
+      else if(debugProbability) {
+        ai.calculateProbabilities();
+      }
     }
   }
 }
@@ -204,7 +209,6 @@ window.addEventListener("keydown", function(evt) {
   if(evt.keyCode == 65) {
     if(!aiSolve) {
       aiSolve = true;
-      ai = new AI(this);
       console.log("AI will now solve...")
     } else {
       aiSolve = false;
@@ -212,8 +216,6 @@ window.addEventListener("keydown", function(evt) {
     }
   }
   if(evt.keyCode == 68) {
-    if(aiSolve) {
-      debugProbability = !debugProbability;
-    }
+    debugProbability = !debugProbability;
   }
 });

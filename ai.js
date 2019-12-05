@@ -52,16 +52,12 @@ class AI {
               if(!a.flagged) map[a.x][a.y] = 0;
             });
           } else {
-            if(t.remainingMines() == t.getAdjacentUnrevealedTiles().length) {
-              t.getAdjacentUnrevealedTiles().forEach(function(a) {
+            var adj = t.getAdjacentUnrevealedTiles();
+            if(t.remainingMines() == adj.length) {
+              adj.forEach(function(a) {
                 if(!a.flagged) map[a.x][a.y] = 1;
               });
             }
-            // if(t.number == 1) {
-            //   var adjTiles = t.getAdjacentUnrevealedTiles();
-            //   if(adjTiles.length == 1)
-            //     map[adjTiles[0].x][adjTiles[0].y] = 1;
-            // }
           }
         }
       }

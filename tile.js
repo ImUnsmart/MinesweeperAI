@@ -16,6 +16,9 @@ class Tile {
       ctx.fillStyle = "#ccc";
     } else {
       ctx.fillStyle = "#aaa";
+      if(this.number == -3) {
+        ctx.fillStyle = "#a11";
+      }
     }
     ctx.fillRect(this.x * this.size, this.y * this.size, this.size, this.size);
     ctx.strokeRect(this.x * this.size, this.y * this.size, this.size, this.size);
@@ -137,6 +140,7 @@ class Tile {
       }
     } else {
       this.game.lose();
+      this.number = -3;
     }
   }
 
