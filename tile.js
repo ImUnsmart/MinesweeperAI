@@ -1,22 +1,32 @@
+/**
+ * @file ai.js
+ * @author Devin Arena
+ * @since 12/5/2019
+ * @description Stores mine information and handles rendering, calculating
+ *              adjacent mines, storing satisfaction (how many mines are around its number),
+ *              flagging, and revealing logic.
+ */
+
 class Tile {
-  static colors = [ "#009", "#090", "#900", "#990", "#999", "#030", "#003", "#300" ];
-  revealed = false;
-  number = 0;
-  flagged = false;
-  constructor(game, x, y, mine, number) {
+  static colors = ["#009", "#090", "#900", "#990", "#999", "#030", "#003", "#300"];
+
+  constructor(game, x, y, mine) {
     this.game = game;
     this.size = this.game.tileSize;
     this.x = x;
     this.y = y;
     this.mine = mine;
+    this.revealed = false;
+    this.number = 0;
+    this.flagged = false;
   }
 
-  draw(ctx) {
-    if(!this.revealed) {
+  draw = (ctx) => {
+    if (!this.revealed) {
       ctx.fillStyle = "#ccc";
     } else {
       ctx.fillStyle = "#aaa";
-      if(this.number == -3) {
+      if (this.number === -3) {
         ctx.fillStyle = "#a11";
       }
     }
@@ -28,13 +38,13 @@ class Tile {
       ctx.textAlign = "center";
       ctx.fillText(this.number, this.x * this.size + this.size / 2, this.y * this.size + this.size / 2 + 8);
     }
-    if(this.revealed && this.mine) {
+    if (this.revealed && this.mine) {
       ctx.drawImage(this.game.mineImage, this.x * this.size + 4, this.y * this.size + 4, this.size - 8, this.size - 8);
     }
-    if(this.flagged) {
+    if (this.flagged) {
       ctx.drawImage(this.game.flagImage, this.x * this.size + 4, this.y * this.size + 4, this.size - 8, this.size - 8);
     }
-    if(this.game.debugProbability) {
+    if (this.game.debugProbability) {
       ctx.font = "12px Arial";
       ctx.fillStyle = "#000";
       ctx.textAlign = "center";
@@ -42,31 +52,31 @@ class Tile {
     }
   }
 
-  calculateAdjacentMines() {
-    for(var i = -1; i <= 1; i++) {
-      for(var j = -1; j <= 1; j++) {
-        if(i == 0 && j == 0)
+  calculateAdjacentMines = () => {
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        if (i === 0 && j === 0)
           continue;
-        if(this.x + i < 0 || this.x + i > this.game.board.length - 1)
+        if (this.x + i < 0 || this.x + i > this.game.board.length - 1)
           continue;
-        if(this.y + j < 0 || this.y + j > this.game.board[this.x].length - 1)
+        if (this.y + j < 0 || this.y + j > this.game.board[this.x].length - 1)
           continue;
-        if(this.game.board[this.x + i][this.y + j].mine) {
+        if (this.game.board[this.x + i][this.y + j].mine) {
           this.number++;
         }
       }
     }
   }
 
-  getAdjacentTiles() {
-    var list = new Array();
-    for(var i = -1; i <= 1; i++) {
-      for(var j = -1; j <= 1; j++) {
-        if(i == 0 && j == 0)
+  getAdjacentTiles = () => {
+    let list = new Array();
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        if (i === 0 && j === 0)
           continue;
-        if(this.x + i < 0 || this.x + i > this.game.board.length - 1)
+        if (this.x + i < 0 || this.x + i > this.game.board.length - 1)
           continue;
-        if(this.y + j < 0 || this.y + j > this.game.board[this.x].length - 1)
+        if (this.y + j < 0 || this.y + j > this.game.board[this.x].length - 1)
           continue;
         list.push(this.game.board[this.x + i][this.y + j])
       }
@@ -74,17 +84,17 @@ class Tile {
     return list;
   }
 
-  getAdjacentUnrevealedTiles() {
-    var list = new Array();
-    for(var i = -1; i <= 1; i++) {
-      for(var j = -1; j <= 1; j++) {
-        if(i == 0 && j == 0)
+  getAdjacentUnrevealedTiles = () => {
+    let list = new Array();
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        if (i === 0 && j === 0)
           continue;
-        if(this.x + i < 0 || this.x + i > this.game.board.length - 1)
+        if (this.x + i < 0 || this.x + i > this.game.board.length - 1)
           continue;
-        if(this.y + j < 0 || this.y + j > this.game.board[this.x].length - 1)
+        if (this.y + j < 0 || this.y + j > this.game.board[this.x].length - 1)
           continue;
-        if(!this.game.board[this.x + i][this.y + j].revealed && !this.game.board[this.x + i][this.y + j].flagged) {
+        if (!this.game.board[this.x + i][this.y + j].revealed && !this.game.board[this.x + i][this.y + j].flagged) {
           list.push(this.game.board[this.x + i][this.y + j])
         }
       }
@@ -92,17 +102,17 @@ class Tile {
     return list;
   }
 
-  getAdjacentFlags() {
-    var list = new Array();
-    for(var i = -1; i <= 1; i++) {
-      for(var j = -1; j <= 1; j++) {
-        if(i == 0 && j == 0)
+  getAdjacentFlags = () => {
+    let list = new Array();
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        if (i === 0 && j === 0)
           continue;
-        if(this.x + i < 0 || this.x + i > this.game.board.length - 1)
+        if (this.x + i < 0 || this.x + i > this.game.board.length - 1)
           continue;
-        if(this.y + j < 0 || this.y + j > this.game.board[this.x].length - 1)
+        if (this.y + j < 0 || this.y + j > this.game.board[this.x].length - 1)
           continue;
-        if(this.game.board[this.x + i][this.y + j].flagged) {
+        if (this.game.board[this.x + i][this.y + j].flagged) {
           list.push(this.game.board[this.x + i][this.y + j])
         }
       }
@@ -110,30 +120,30 @@ class Tile {
     return list;
   }
 
-  isSatisfied() {
-    return this.getAdjacentFlags().length == this.number;
+  isSatisfied = () => {
+    return this.getAdjacentFlags().length === this.number;
   }
 
-  remainingMines() {
+  remainingMines = () => {
     return this.number - this.getAdjacentFlags().length;
   }
 
-  reveal() {
-    if(this.revealed || this.flagged)
+  reveal = () => {
+    if (this.revealed || this.flagged)
       return;
     this.revealed = true;
-    if(!this.mine) {
-      if(this.number == 0) {
+    if (!this.mine) {
+      if (this.number === 0) {
         this.game.revealedTiles++;
-        for(var i = -1; i <= 1; i++) {
-          for(var j = -1; j <= 1; j++) {
-            if(i == 0 && j == 0)
+        for (let i = -1; i <= 1; i++) {
+          for (let j = -1; j <= 1; j++) {
+            if (i === 0 && j === 0)
               continue;
-            if(this.x + i < 0 || this.x + i > this.game.board.length - 1)
+            if (this.x + i < 0 || this.x + i > this.game.board.length - 1)
               continue;
-            if(this.y + j < 0 || this.y + j > this.game.board[this.x].length - 1)
+            if (this.y + j < 0 || this.y + j > this.game.board[this.x].length - 1)
               continue;
-            if(this.game.board[this.x + i][this.y + j].reveal()) {
+            if (this.game.board[this.x + i][this.y + j].reveal()) {
             }
           }
         }
@@ -144,8 +154,8 @@ class Tile {
     }
   }
 
-  flag() {
-    if(this.revealed)
+  flag = () => {
+    if (this.revealed)
       return;
     this.flagged = !this.flagged;
     this.game.checkNumFlags();
