@@ -57,10 +57,13 @@ class AI {
     // WORST CASE SCENARIO: we just guess a random tile and reveal it if we
     // can't find anything better to do
     while (true) {
+      // grab random x and y
       let x = Math.floor(Math.random() * board.length);
       let y = Math.floor(Math.random() * board[x].length);
+      // if its not revealed or flagged, go for it
       if (!board[x][y].revealed && !board[x][y].flagged) {
         board[x][y].reveal();
+        // wait till next move to do it again
         break;
       }
     }
@@ -90,7 +93,7 @@ class AI {
             let adj = t.getAdjacentUnrevealedTiles(); // grab adjacent tiles
             // if the number of adjacent tiles is the number of mines, all remaining
             // adjacent tiles must be mines
-            if (t.remainingMines() === adj.length) {
+            if (t.number >= adj.length) {
               adj.forEach(a => {
                 // set to be a mine (1)
                 if (!a.flagged) this.probabilityMap[a.x][a.y] = 1;
