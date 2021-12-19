@@ -54,20 +54,22 @@ class AI {
     // if we did win, don't try to make a random move (prevents infinite loop)
     if (this.game.won)
       return;
-    // WORST CASE SCENARIO: we just guess a random tile and reveal it if we
-    // can't find anything better to do
-    while (true) {
-      // grab random x and y
-      let x = Math.floor(Math.random() * board.length);
-      let y = Math.floor(Math.random() * board[x].length);
-      // if its not revealed or flagged, go for it
-      if (!board[x][y].revealed && !board[x][y].flagged) {
-        board[x][y].reveal();
-        // wait till next move to do it again
-        break;
+    // WORST CASE SCENARIO: we guess the best probability tile 
+    // or just a random tile if all have the same probability
+    let min = 0.5;
+    let posY = Math.floor(Math.random() * board.length);
+    let posX = Math.floor(Math.random() * board[posY].length);
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        if (this.probabilityMap[i][j] >= 0 && this.probabilityMap[i][j] < min) {
+          min = this.probabilityMap[i][j];
+          posY = i;
+          posX = j;
+        }
       }
     }
-  }
+    board[posY][posX].reveal();
+  };
 
   /**
    * Calculates the probability map.
@@ -91,17 +93,21 @@ class AI {
           } else {
             // if not satisfied try and find some guaranteed mines
             let adj = t.getAdjacentUnrevealedTiles(); // grab adjacent tiles
-            // if the number of adjacent tiles is the number of mines, all remaining
-            // adjacent tiles must be mines
-            if (t.number >= adj.length) {
-              adj.forEach(a => {
-                // set to be a mine (1)
-                if (!a.flagged) this.probabilityMap[a.x][a.y] = 1;
-              });
-            }
+            adj.forEach(a => {
+              // if the number of adjacent tiles is the number of mines, all remaining
+              // adjacent tiles must be mines, otherwise, each mine has a (NUMBER - ADJACENT_FLAGS) / ADJACENT chance to be
+              // a mine, this is a reduction, but works very well (if there are 4 unrevealed mines and the
+              // number is 3, each mine has ~75% chance of being a mine, so another set of tiles might be a better guess)
+              if (!a.flagged && this.probabilityMap[a.x][a.y] > 0 && this.probabilityMap[a.x][a.y] < 1) {
+                if (t.number >= adj.length)
+                  this.probabilityMap[a.x][a.y] = 1;
+                else
+                  this.probabilityMap[a.x][a.y] = Math.round((t.number - t.getAdjacentFlags().length) / Math.max(adj.length, 1) * 100) / 100;
+              }
+            });
           }
         }
       }
     }
-  }
+  };
 }

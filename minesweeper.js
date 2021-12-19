@@ -29,6 +29,7 @@ let lost = false;
 var won = false;
 let numMines = 60;
 let numFlags = 0;
+let lightning = true;
 
 // other
 let time = 0;
@@ -71,7 +72,7 @@ const update = () => {
   // if the game is still being played
   if (!won && !lost) {
     time++;
-    if (time % (60 * 0.1) === 0) {
+    if (time % (60 * 0.1) === 0 || lightning) {
       // every 1/10 of a second make an AI move or update the map if active.
       if (aiSolve)
         ai.nextMove();
